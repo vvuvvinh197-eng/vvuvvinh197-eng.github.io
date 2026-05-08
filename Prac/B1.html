@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Registration Form</title>
+    <style>
+        /* Reset cơ bản */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f2f5;
+            /* Căn giữa form trên màn hình */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        /* Yêu cầu 3: Style form with Flexbox layout */
+        .registration-form {
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 400px;
+            
+            /* Áp dụng Flexbox cho form */
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        h2 {
+            text-align: center;
+            color: #333;
+        }
+
+        /* Flexbox cho từng nhóm input */
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        label {
+            font-weight: bold;
+            color: #555;
+        }
+
+        input {
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #007bff;
+        }
+
+        button {
+            padding: 12px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        /* Style cho Password Strength Indicator */
+        .strength-indicator {
+            font-size: 14px;
+            font-weight: bold;
+            height: 20px; /* Chiều cao cố định để không làm xô lệch layout */
+        }
+
+        .weak { color: #dc3545; }    /* Đỏ */
+        .medium { color: #ffc107; }  /* Vàng */
+        .strong { color: #28a745; }  /* Xanh lá */
+    </style>
+</head>
+<body>
+
+    <form class="registration-form" id="regForm">
+        <h2>Register</h2>
+
+        <div class="form-group">
+            <label for="username">Username</label>
+            <input type="text" id="username" name="username" 
+                   required 
+                   minlength="5" maxlength="15" 
+                   placeholder="Enter 5-15 characters">
+        </div>
+
+        <div class="form-group">
+            <label for="password">Password</label>
+            <input type="password" id="password" name="password" 
+                   required 
+                   pattern="(?=.*[A-Za-z])(?=.*\d).+" 
+                   title="Password must contain both letters and numbers"
+                   placeholder="Letters and numbers required">
+            
+            <div id="strength-indicator" class="strength-indicator"></div>
+        </div>
+
+        <div class="form-group">
+            <label for="profilePic">Profile Picture (JPG/PNG)</label>
+            <input type="file" id="profilePic" name="profilePic" 
+                   required 
+                   accept=".jpg, .jpeg, .png">
+        </div>
+
+        <button type="submit">Sign Up</button>
+    </form>
+
+    <script>
+        const passwordInput = document.getElementById('password');
+        const strengthIndicator = document.getElementById('strength-indicator');
+        const form = document.getElementById('regForm');
+        const fileInput = document.getElementById('profilePic');
+
+        // Yêu cầu 4: Cập nhật Password Strength theo thời gian thực (Real-time)
+        passwordInput.addEventListener('input', function() {
+            const val = passwordInput.value;
+            let strengthText = '';
+            let strengthClass = '';
+
+            // Kiểm tra chữ cái và chữ số
+            const hasLetters = /[a-zA-Z]/.test(val);
+            const hasNumbers = /\d/.test(val);
+            
+            if (val.length === 0) {
+                strengthText = '';
+                strengthClass = '';
+            } 
+            // Weak: Dưới 6 ký tự hoặc thiếu chữ/số
+            else if (val.length < 6 || !hasLetters || !hasNumbers) {
+                strengthText = 'Weak';
+                strengthClass = 'weak';
+            } 
+            // Medium: Từ 6-7 ký tự và có đủ chữ & số
+            else if (val.length >= 6 && val.length < 8 && hasLetters && hasNumbers) {
+                strengthText = 'Medium';
+                strengthClass = 'medium';
+            } 
+            // Strong: Từ 8 ký tự trở lên và có đủ chữ & số
+            else if (val.length >= 8 && hasLetters && hasNumbers) {
+                strengthText = 'Strong';
+                strengthClass = 'strong';
+            }
+
+            strengthIndicator.textContent = strengthText ? `Strength: ${strengthText}` : '';
+            strengthIndicator.className = `strength-indicator ${strengthClass}`;
+        });
+
+        // Bắt lỗi thêm bằng JS khi Submit để đảm bảo an toàn (Double check)
+        form.addEventListener('submit', function(e) {
+            // Kiểm tra đuôi file ảnh một lần nữa
+            const file = fileInput.files[0];
+            if (file) {
+                const fileName = file.name;
+                const ext = fileName.split('.').pop().toLowerCase();
+                if (ext !== 'jpg' && ext !== 'jpeg' && ext !== 'png') {
+                    e.preventDefault(); // Ngăn chặn gửi form
+                    alert('Error: Profile picture must be a JPG or PNG file.');
+                }
+            }
+        });
+    </script>
+</body>
+</html>
